@@ -13,6 +13,16 @@ class TransactionsController < ApplicationController
         end
     end
 
+    def destroy
+        @id = params.require(:id)
+        @transaction = Transaction.find(@id)
+        if @transaction.destroy!
+            render status: :ok
+        else
+            render status: :bad_request
+        end
+    end
+
     private
 
     def transaction_params
