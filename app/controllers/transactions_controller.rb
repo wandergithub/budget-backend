@@ -14,18 +14,27 @@ class TransactionsController < ApplicationController
     end
 
     def destroy
-        @id = params.require(:id)
-        @transaction = Transaction.find(@id)
+        user_id = params.require(:id)
+        @transaction = Transaction.find(user_id)
         if @transaction.destroy!
             render status: :ok
         else
-            render status: :bad_request
+            render json: @transaction.errors, status: :bad_request
+        end
+    end
+
+    def update
+        @transaction = Transaction.find(transaction_params[:id])
+        if @transaction.update(name: transaction_params[:name], value: transaction_params[:value])
+            render json: @transaction, status: :created
+        else
+            render json: @transaction.errors, status: :unprocessable_entity
         end
     end
 
     private
 
     def transaction_params
-        params.require(:transaction).permit(:name, :value)
+        params.require(:transaction).permit(:name, :value, :id)
     end
 end
