@@ -33,8 +33,8 @@ class TransactionsController < ApplicationController
     end
 # Returns last transactions ordered by months in a year period, separate income and expense... expense on positive values
     def chart_data
-        end_date = Transaction.last.updated_at
-        start_date = Transaction.first.updated_at
+        end_date = Transaction.last.created_at
+        start_date = Transaction.first.created_at
 
         transactions = Transaction.where(updated_at: start_date.beginning_of_day..end_date.end_of_day).order(updated_at: :asc).group_by { |t| t.updated_at.beginning_of_month }
 
