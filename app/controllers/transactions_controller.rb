@@ -46,12 +46,11 @@ class TransactionsController < ApplicationController
           current_date = current_date.next_month
         end
 
-        monthly_summaries = months.map.with_index do |month, idx|
+        monthly_summaries = months.map do |month|
             entries = transactions[month] || []
-            logger.debug  entries
             income = entries.select { |t| t.value > 0 }.sum(&:value)
             expense = entries.select { |t| t.value < 0 }.sum(&:value).abs
-            { month: idx, income: income, expense: expense }
+            { month: month.month, income: income, expense: expense }
         end
         
         @response = monthly_summaries
