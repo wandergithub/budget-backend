@@ -33,16 +33,28 @@ class TransactionsController < ApplicationController
     end
 # Returns last transactions ordered by months in a year period, separate income and expense... expense on positive values
     def chart_data
-        end_date = Transaction.all.last.updated_at
-        start_date = Transaction.all.first.updated_at - 1.year
+        end_date = Transaction.last.updated_at
+        start_date = Transaction.first.updated_at
+
         transactions = Transaction.where(updated_at: start_date.beginning_of_day..end_date.end_of_day).order(updated_at: :asc).group_by { |t| t.updated_at.beginning_of_month }
-        monthly_transactions = transactions.transform_values do |entries| {
-            income: entries.select {|t| t.value > 0},
-            expense: entries.select {|t| t.value < 0}
-        }
+
+        months = []
+        current_date = start_date.beginning_of_month
+
+        while current_date <= end_date.beginning_of_month
+          months << current_date
+          current_date = current_date.next_month
         end
 
-        @response = monthly_transactions
+        monthly_summaries = months.map.with_index do |month, idx|
+            entries = transactions[month] || []
+            logger.debug  entries
+            income = entries.select { |t| t.value > 0 }.sum(&:value)
+            expense = entries.select { |t| t.value < 0 }.sum(&:value).abs
+            { month: idx, income: income, expense: expense }
+        end
+        
+        @response = monthly_summaries
         if @response
             render json: @response, status: :ok
         else
