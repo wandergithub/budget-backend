@@ -70,7 +70,7 @@ class TransactionsController < ApplicationController
 #returns last month and prev month transactions taking the current date as starting point
     def month
         last_month = Transaction.where(updated_at: (Date.today - 1.month).beginning_of_day..Date.today.end_of_day)
-        prev_month = Transaction.where(updated_at: (Date.today - 2.month).beginning_of_day..Date.today.end_of_day)
+        prev_month = Transaction.where(updated_at: (Date.today - 2.month).beginning_of_day..(Date.today - 1.month).beginning_of_day)
         @response = {last: last_month, prev: prev_month}
         if @response
             render json: @response, status: :ok
