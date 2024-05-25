@@ -32,6 +32,13 @@ class TransactionsController < ApplicationController
         end
     end
 # Returns last transactions ordered by months in a year period, separate income and expense... expense on positive values
+# [
+#   {
+#     "month": 5, month number 1-12
+#     "income": 37709, --> total inconme on the month
+#     "expense": 84453 --> total expense on the month
+#   }
+# ]
     def chart_data
         end_date = Transaction.last.created_at
         start_date = Transaction.first.created_at
@@ -54,6 +61,17 @@ class TransactionsController < ApplicationController
         end
         
         @response = monthly_summaries
+        if @response
+            render json: @response, status: :ok
+        else
+            render json: @response, status: :unprocessable_entity
+        end
+    end
+#returns last month and prev month transactions taking the current date as starting point
+    def month
+        last_month = Transaction.where(updated_at: (Date.today - 1.month).beginning_of_day..Date.today.end_of_day)
+        prev_month = Transaction.where(updated_at: (Date.today - 2.month).beginning_of_day..Date.today.end_of_day)
+        @response = {last: last_month, prev: prev_month}
         if @response
             render json: @response, status: :ok
         else
